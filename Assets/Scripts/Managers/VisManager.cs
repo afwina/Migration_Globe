@@ -15,11 +15,20 @@ public class VisManager : MonoBehaviour
     private YearSlider YearController;
     [SerializeField]
     private FlowModeSlider FlowModeController;
+    [SerializeField]
+    private GlobeManager Globe;
+    [SerializeField]
+    private InfoPanel m_InfoPanel;
+    public InfoPanel InfoPanel => m_InfoPanel;
 
-    private WorldMapGlobe Globe;
-    private FlowMode CurrentMode;
-    private string CurrentYear;
-    private string Focus;
+    [HideInInspector]
+    public FlowMode CurrentMode;
+    [HideInInspector]
+    public string CurrentYear;
+    [HideInInspector]
+    public string CurrentCountry = null;
+
+    private VisState VisState;
 
     public void Initialize()
     {
@@ -30,10 +39,13 @@ public class VisManager : MonoBehaviour
         FlowModeController.Setup(new List<FlowMode> {FlowMode.Immigration, FlowMode.Emigration}, (int)Config.DefaultFlowMode, Config);
         FlowModeController.OnSliderChange += SetFlow;
 
-        Globe = WorldMapGlobe.instance;
-        Globe.ColorAllRegionsInstant(Config.NoDataColor);
+        Globe.Initialize();
+        Globe.ColorGlobe(Config.NoDataColor);
+        Globe.OnCountryHoveredChanged += HandleGlobeHover;
+        Globe.OnGlobeClicked += HandleGlobeClick;
 
 
+        SetState(VisStates.WorldFocusState);
         VisualizeTotal(Config.DefaultFlowMode, Config.DefaultYear);
     }
 
@@ -41,6 +53,15 @@ public class VisManager : MonoBehaviour
     {
         YearController.OnSliderChange -= SetYear;
         FlowModeController.OnSliderChange -= SetFlow;
+        Globe.OnCountryHoveredChanged -= HandleGlobeHover;
+        Globe.OnGlobeClicked -= HandleGlobeClick;
+    }
+
+    private void SetState(VisState newState)
+    {
+        VisState?.Exit();
+        VisState = newState;
+        VisState.Enter(this);
     }
 
     public void VisualizeTotal(FlowMode mode, string year)
@@ -50,39 +71,42 @@ public class VisManager : MonoBehaviour
         Gradient colorGradient = mode == FlowMode.Immigration ? Config.ImmigrationGradient : Config.EmigrationGradient;
         float duration = mode != CurrentMode ? Config.FlowModeSwitchDuration : Config.YearSwitchDuration;
         float max = Mathf.Round(DataManager.GetMaxTotal(mode) / 100000f) *100000;
-        UpdateGlobe(startingData, max, countries, colorGradient, duration);
+        UpdateVis(startingData, max, countries, colorGradient, duration);
 
         CurrentMode = mode;
         CurrentYear = year;
-        Focus = World;
-    }
-
-    public void UpdateGlobe(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
-    {
-        Globe.StopFading();
-        for (int i = 0; i < data.Length; i++)
-        {
-            float time = data[i] / max;
-            var color = colorGradient.Evaluate(time);
-            Globe.FadeCountryIntoColor(countries[i], color, duration);
-        }
-
-        ScaleLegend.SetScale(0, max, colorGradient);
     }
 
     public void SetYear(string year)
     {
-        if (Focus == World)
-        {
-            VisualizeTotal(CurrentMode, year);
-        }
+        VisState.HandleYearChange(this, year);
     }
 
     public void SetFlow(FlowMode mode)
     {
-        if (Focus == World)
-        {
-            VisualizeTotal(mode, CurrentYear);
-        }
+        VisState.HandleFlowChange(this, mode);
+    }
+
+    private void UpdateVis(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
+    {
+        ScaleLegend.SetScale(0, max, colorGradient);
+        Globe.UpdateGlobe(data, max, countries, colorGradient, duration);
+    }
+
+    private void HandleGlobeHover(string country)
+    {
+        CurrentCountry = country;
+        VisState.HandleGlobeHover(this, country);
+    }
+
+    private void HandleGlobeClick(string country)
+    {
+        CurrentCountry = country;
+        VisState.HandleGlobeClick(this, country);
+    }
+
+    public void HighlightCountry(string country)
+    {
+        Globe.HighlightCountry(country);
     }
 }

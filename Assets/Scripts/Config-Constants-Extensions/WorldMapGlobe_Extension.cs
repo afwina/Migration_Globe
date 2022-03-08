@@ -56,5 +56,45 @@ namespace WPM
         {
             StopAllCoroutines();
         }
+
+        public int CheckCountryHover(Vector3 mousePos)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(mousePos);
+            RaycastHit[] hits;
+            hits = Physics.RaycastAll(Camera.main.transform.position, ray.direction, 8, layerMask);
+            if (hits.Length > 0)
+            {
+                for (int k = 0; k < hits.Length; k++)
+                {
+                    if (hits[k].collider.gameObject == gameObject)
+                    {
+                        var location = transform.InverseTransformPoint(hits[k].point);
+
+                        if (GetCountryUnderMouse(location, out int c, out int cr))
+                        {
+                            return c;
+                        }
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public void EnlargeCountry(string country)
+        {
+            int index = GetCountryIndex(country);
+            if (index != -1)
+            {
+                var regions = countries[index].regions;
+                GameObject[] surfs = new GameObject[regions.Count];
+                for (int i = 0; i < regions.Count; i++)
+                {
+                    int cacheIndex = GetCacheIndexForCountryRegion(index, i);
+                    surfs[i] = surfaces[cacheIndex];
+                    surfs[i].transform.localScale = new Vector3(1.05f,1.05f, 1.05f);
+                }
+            }
+        }
     }
 }

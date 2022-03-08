@@ -61,7 +61,7 @@
     <Compile Include="Assets\WPMapGlobeEditionLite\Demo\ColorPicker.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\Geom\PolygonClipping\Polygon.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\Utility\FixedArray3.cs" />
-    <Compile Include="Assets\SliderTick.cs" />
+    <Compile Include="Assets\Scripts\UI\SliderTick.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\Triangulation\Delaunay\Sweep\DTSweepDebugContext.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\Geom\Point.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\P2T.cs" />
@@ -122,8 +122,10 @@
     <Compile Include="Assets\Scripts\Managers\VisManager.cs" />
     <Compile Include="Assets\Scripts\Config-Constants-Extensions\VisConfig.cs" />
     <Compile Include="Assets\UIGradient\Assets\Scripts\UIGradientUtils.cs" />
+    <Compile Include="Assets\InfoField.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\Utility\Rect2D.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\Core\Province.cs" />
+    <Compile Include="Assets\InfoPanel.cs" />
     <Compile Include="Assets\UIGradient\Assets\Scripts\UIGradient.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\Triangulation\Polygon\Polygon.cs" />
     <Compile Include="Assets\UIGradient\Assets\Scripts\UITextCornersGradient.cs" />
@@ -151,6 +153,9 @@
     <Compile Include="Assets\UIGradient\Assets\Scripts\SetDirty.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\Triangulation\Delaunay\Sweep\DTSweepConstraint.cs" />
     <Compile Include="Assets\WPMapGlobeEditionLite\Scripts\PolyTri\Triangulation\Sets\ConstrainedPointSet.cs" />
+    <Compile Include="Assets\Scripts\Managers\VisState.cs" />
+    <Compile Include="Assets\Scripts\Managers\WorldFocusState.cs" />
+    <Compile Include="Assets\NumberFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -58,9 +58,35 @@ public static class DataManager
         return TotalImmigrants[year];
     }
 
+    public static int GetTotalImmigrantsTo(string country, string year)
+    {
+        int index = Destinations.IndexOf(country);
+        if (index != -1)
+        {
+            return (int)TotalImmigrants[year][index];
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
     public static uint[] GetTotalEmigrants(string year)
     {
         return TotalEmigrants[year];
+    }
+    
+    public static int GetTotalEmigrantsFrom(string country, string year)
+    {
+        int index = Origins.IndexOf(country);
+        if (index != -1)
+        {
+            return (int)TotalEmigrants[year][index];
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     public static List<string> GetYears()

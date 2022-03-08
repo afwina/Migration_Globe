@@ -18,7 +18,7 @@ public class ScaleLegend : MonoBehaviour
 
     public void SetScale(float min, float max, Gradient gradient)
     {
-        MinText.text = min.ToString("F0");
-        MaxText.text = max.ToString("F0");
+        MinText.text = NumberFormatter.Format(min);
+        MaxText.text = NumberFormatter.Format(max);
     }
 }

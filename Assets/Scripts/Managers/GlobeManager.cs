@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using WPM;
 
 public class GlobeManager : InputHandler
 {
     public static Action<float> OnReset;
+    public Action<string> OnCountryHoveredChanged;
+    public Action<string> OnGlobeClicked;
 
     [SerializeField]
     private Vector3 DefaultRotation;
@@ -17,10 +20,13 @@ public class GlobeManager : InputHandler
     private float RotateSensitivityMin;
 
     private bool Dragging = false;
+    private bool OverGlobe = false;
     private float RotateSensitivity;
-
-    private void Start()
+    private WorldMapGlobe Globe;
+    private int HoveredCountryIndex = -1;
+    public void Initialize()
     {
+        Globe = WorldMapGlobe.instance;
         transform.rotation = Quaternion.Euler(DefaultRotation);
         RotateSensitivity = RotateSensitivityMax;
         CameraManager.OnZoomChanged += AdjustRotateSensitivity;
@@ -52,6 +58,40 @@ public class GlobeManager : InputHandler
 
             transform.Rotate(Camera.main.transform.right, Vector3.Dot(mouse, Camera.main.transform.up), Space.World);
         }
+
+        if (Globe != null)
+        {
+            int prev = HoveredCountryIndex;
+            HoveredCountryIndex = Globe.CheckCountryHover(input.MousePos);
+            if (prev != HoveredCountryIndex)
+            {
+                if (HoveredCountryIndex == -1 || !OverGlobe)
+                {
+                    OnCountryHoveredChanged?.Invoke(null);
+                }
+                else
+                {
+                    OnCountryHoveredChanged?.Invoke(Globe.countries[HoveredCountryIndex].name);
+                }
+            }
+
+            if (input.MouseLClicked)
+            {
+                if (HoveredCountryIndex == -1 || !OverGlobe)
+                {
+                    OnGlobeClicked?.Invoke(null);
+                }
+                else
+                {
+                    OnGlobeClicked?.Invoke(Globe.countries[HoveredCountryIndex].name);
+                }
+            }
+
+            if (input.MouseLHold)
+            {
+                Debug.Log("Pressed!");
+            }
+        }
     }
 
     public void ResetGlobe()
@@ -62,6 +102,27 @@ public class GlobeManager : InputHandler
         OnReset?.Invoke(timeToReset);
         InputManager.Disable();
         StartCoroutine(ResetRotation(timeToReset, () => InputManager.Enable()));
+    }
+
+    public void ColorGlobe(Color color)
+    {
+        Globe.ColorAllRegionsInstant(color);
+    }
+    
+    public void UpdateGlobe(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
+    {
+        Globe.StopFading();
+        for (int i = 0; i < data.Length; i++)
+        {
+            float time = data[i] / max;
+            var color = colorGradient.Evaluate(time);
+            Globe.FadeCountryIntoColor(countries[i], color, duration);
+        }
+    }
+
+    public void HighlightCountry(string country)
+    {
+        Globe.EnlargeCountry(country);
     }
 
     private IEnumerator ResetRotation(float timeToReset, Action onComplete)
@@ -93,5 +154,15 @@ public class GlobeManager : InputHandler
     private void OnMouseUp()
     {
         Dragging = false;
+    }
+
+    private void OnMouseOver()
+    {
+        OverGlobe = true;
+    }
+
+    private void OnMouseExit()
+    {
+        OverGlobe = false;
     }
 }

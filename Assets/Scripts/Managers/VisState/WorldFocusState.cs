@@ -6,6 +6,7 @@ public class WorldFocusState : VisState
 {
     public override VisState HandleGlobeClick(VisManager vis, string country)
     {
+        vis.CurrentCountry = country;
         if (country == null)
         {
             vis.InfoPanel.Hide();
@@ -38,6 +39,17 @@ public class WorldFocusState : VisState
     public override VisState HandleFlowChange(VisManager vis, FlowMode mode)
     {
         vis.VisualizeTotal(mode, vis.CurrentYear);
+        return this;
+    }
+
+    public override VisState HandleGlobeHoldReleased(VisManager vis, string country, bool staticHold)
+    {
+        if (staticHold && country != null)
+        {
+            vis.CurrentCountry = country;
+            return VisStates.CountryFocusState;
+        }
+
         return this;
     }
 }

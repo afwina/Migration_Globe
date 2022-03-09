@@ -6,9 +6,12 @@ using WPM;
 
 public class GlobeManager : InputHandler
 {
-    public static Action<float> OnReset;
+    public Action<float> OnReset;
     public Action<string> OnCountryHoveredChanged;
     public Action<string> OnGlobeClicked;
+    public Action<string, bool> OnHold;
+    public Action<string, bool> OnHoldReleased;
+
 
     [SerializeField]
     private Vector3 DefaultRotation;
@@ -22,20 +25,13 @@ public class GlobeManager : InputHandler
     private bool Dragging = false;
     private bool OverGlobe = false;
     private float RotateSensitivity;
-    private WorldMapGlobe Globe;
+    private WorldMapGlobe WPMGlobe;
     private int HoveredCountryIndex = -1;
     public void Initialize()
     {
-        Globe = WorldMapGlobe.instance;
+        WPMGlobe = WorldMapGlobe.instance;
         transform.rotation = Quaternion.Euler(DefaultRotation);
         RotateSensitivity = RotateSensitivityMax;
-        CameraManager.OnZoomChanged += AdjustRotateSensitivity;
-    }
-
-    public override void OnDestroy()
-    {
-        base.OnDestroy();
-        CameraManager.OnZoomChanged -= AdjustRotateSensitivity;
     }
 
     public override void HandleInput(InputInfo input)
@@ -59,37 +55,33 @@ public class GlobeManager : InputHandler
             transform.Rotate(Camera.main.transform.right, Vector3.Dot(mouse, Camera.main.transform.up), Space.World);
         }
 
-        if (Globe != null)
+        if (WPMGlobe != null)
         {
             int prev = HoveredCountryIndex;
-            HoveredCountryIndex = Globe.CheckCountryHover(input.MousePos);
+            HoveredCountryIndex = WPMGlobe.CheckCountryHover(input.MousePos);
+            
+            string country = null;
+            if (HoveredCountryIndex != -1 && OverGlobe)
+            {
+                country = WPMGlobe.countries[HoveredCountryIndex].name;
+            }
+            
             if (prev != HoveredCountryIndex)
             {
-                if (HoveredCountryIndex == -1 || !OverGlobe)
-                {
-                    OnCountryHoveredChanged?.Invoke(null);
-                }
-                else
-                {
-                    OnCountryHoveredChanged?.Invoke(Globe.countries[HoveredCountryIndex].name);
-                }
+                OnCountryHoveredChanged?.Invoke(country);
             }
 
             if (input.MouseLClicked)
             {
-                if (HoveredCountryIndex == -1 || !OverGlobe)
-                {
-                    OnGlobeClicked?.Invoke(null);
-                }
-                else
-                {
-                    OnGlobeClicked?.Invoke(Globe.countries[HoveredCountryIndex].name);
-                }
+                OnGlobeClicked?.Invoke(country);
             }
-
-            if (input.MouseLHold)
+            else if (input.MouseLHold)
             {
-                Debug.Log("Pressed!");
+                OnHold?.Invoke(country, input.MouseLHoldStatic);
+            }
+            else if (input.MouseLHoldReleased)
+            {
+                OnHoldReleased?.Invoke(country, input.MouseLHoldStatic);
             }
         }
     }
@@ -106,23 +98,23 @@ public class GlobeManager : InputHandler
 
     public void ColorGlobe(Color color)
     {
-        Globe.ColorAllRegionsInstant(color);
+        WPMGlobe.ColorAllRegionsInstant(color);
     }
     
     public void UpdateGlobe(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
     {
-        Globe.StopFading();
+        WPMGlobe.StopFading();
         for (int i = 0; i < data.Length; i++)
         {
             float time = data[i] / max;
             var color = colorGradient.Evaluate(time);
-            Globe.FadeCountryIntoColor(countries[i], color, duration);
+            WPMGlobe.FadeCountryIntoColor(countries[i], color, duration);
         }
     }
 
     public void HighlightCountry(string country)
     {
-        Globe.EnlargeCountry(country);
+        //Globe.EnlargeCountry(country);
     }
 
     private IEnumerator ResetRotation(float timeToReset, Action onComplete)
@@ -141,9 +133,14 @@ public class GlobeManager : InputHandler
         onComplete?.Invoke();
     }
 
-    private void AdjustRotateSensitivity(float percent)
+    public void AdjustRotateSensitivity(float percent)
     {
         RotateSensitivity = RotateSensitivityMin + ((RotateSensitivityMax - RotateSensitivityMin) * percent);
+    }
+
+    public void RotateToCountry(string country)
+    {
+        WPMGlobe.FlyToCountry(country);
     }
 
     private void OnMouseDown()

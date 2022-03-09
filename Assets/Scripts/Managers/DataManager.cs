@@ -32,11 +32,6 @@ public static class DataManager
         }
     }
 
-    public static string GetOriginCountry(int index)
-    {
-        return Origins[index];
-    }
-
     public static uint[] GetImmigrationTo(string dest, string year)
     {
         int index = Destinations.IndexOf(dest);
@@ -51,6 +46,17 @@ public static class DataManager
         }
 
         return new uint[0];
+    }
+    public static int GetImmigrantsToAFromB(string A, string B, string year)
+    {
+        int indexA = Destinations.IndexOf(A);
+        int indexB = Origins.IndexOf(B);
+        if (indexA != -1 && indexB != -1)
+        {
+            return (int)MigrationData[year][indexA, indexB];
+        }
+
+        return -1;
     }
 
     public static uint[] GetTotalImmigrants(string year)
@@ -69,6 +75,34 @@ public static class DataManager
         {
             return -1;
         }
+    }
+
+    public static uint[] GetEmigrantsFrom(string origin, string year)
+    {
+        int index = Origins.IndexOf(origin);
+        if (index != -1)
+        {
+            var data = new uint[Destinations.Count];
+            for (int i = 0; i < Destinations.Count; i++)
+            {
+                data[i] = MigrationData[year][i, index];
+            }
+            return data;
+        }
+
+        return new uint[0];
+    }
+
+    public static int GetEmigrantsFromAToB(string A, string B, string year)
+    {
+        int indexA = Origins.IndexOf(A);
+        int indexB = Destinations.IndexOf(B);
+        if (indexA != -1 && indexB != -1)
+        {
+            return (int) MigrationData[year][indexB, indexA];
+        }
+
+        return -1;
     }
 
     public static uint[] GetTotalEmigrants(string year)
@@ -176,7 +210,7 @@ public static class DataManager
                 {
                     for (int i = 1; i < counts.Length; i++)
                     {
-                        matrix[index, i-1] = counts[i-1];
+                        matrix[index, i-1] = counts[i];
                     }
                 }
                 else
@@ -184,7 +218,7 @@ public static class DataManager
                     uint[,] migrationMatrix = new uint[Destinations.Count, Origins.Count];
                     for (int i = 1; i < counts.Length; i++)
                     {
-                        migrationMatrix[index, i-1] = counts[i-1];
+                        migrationMatrix[index, i-1] = counts[i];
                     }
                     MigrationData.Add(year, migrationMatrix);
                 }

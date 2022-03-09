@@ -6,11 +6,13 @@ public struct InputInfo
 {
     public float ScrollDelta;
     public bool Reset_KeyDown;
-    public bool MouseLPressed;
-    public bool MouseLDown;
-    public bool MouseLClicked;
-    public bool MouseLHold;
-    public float MouseLHoldDuration;
+    public bool MouseLPressed;  // The left click held down 
+    public bool MouseLDown;     // The left click began being held down 
+    public bool MouseLClicked;  // On release of the left click after less than ClickDownMax seconds
+    public bool MouseLHold;     // Left click had been held down for longer than HoldDownMin seconds 
+    public bool MouseLHoldReleased; // Left click released after a hold
+    public bool MouseLHoldStatic;   // Has the mouse remained mostly stationary while held down?
+    public float MouseLHoldDuration;// How long the left mouse has been pressed down
     public Vector2 MousePos;
     public Vector2 MousePosPrev;
     public Vector2 MousePosDelta;
@@ -21,6 +23,8 @@ public class InputManager : MonoBehaviour
     private float ClickDownMax;
     [SerializeField]
     private float HoldDownMin;
+    [SerializeField]
+    private float StaticHoldThreshold;
 
     private static List<InputHandler> InputHandlers = new List<InputHandler>();
     private InputInfo CurrentInput = new InputInfo();
@@ -58,11 +62,13 @@ public class InputManager : MonoBehaviour
             CurrentInput.MousePosDelta = CurrentInput.MousePos - CurrentInput.MousePosPrev;
             CurrentInput.MouseLClicked = false;
             CurrentInput.MouseLHold = false;
+            CurrentInput.MouseLHoldReleased = false;
             CurrentInput.MouseLDown = Input.GetMouseButtonDown(0);
 
             if (CurrentInput.MouseLDown)
             {
                 CurrentInput.MouseLHoldDuration = 0;
+                CurrentInput.MouseLHoldStatic = true;
             }
             else if (Input.GetMouseButtonUp(0))
             {
@@ -70,6 +76,10 @@ public class InputManager : MonoBehaviour
                 if (CurrentInput.MouseLHoldDuration < ClickDownMax)
                 {
                     CurrentInput.MouseLClicked = true;
+                }
+                if (CurrentInput.MouseLHoldDuration > HoldDownMin)
+                {
+                    CurrentInput.MouseLHoldReleased = true;
                 }
                 CurrentInput.MouseLHoldDuration = 0;
             }
@@ -79,7 +89,16 @@ public class InputManager : MonoBehaviour
                 if (CurrentInput.MouseLHoldDuration > HoldDownMin)
                 {
                     CurrentInput.MouseLHold = true;
+                    if (Mathf.Abs(CurrentInput.MousePosDelta.x) > StaticHoldThreshold || 
+                        Mathf.Abs(CurrentInput.MousePosDelta.y) > StaticHoldThreshold)
+                    {
+                        CurrentInput.MouseLHoldStatic = false;
+                    }
                 }
+            }
+            else
+            {
+                CurrentInput.MouseLHoldStatic = false;
             }
 
             foreach (var handler in InputHandlers)

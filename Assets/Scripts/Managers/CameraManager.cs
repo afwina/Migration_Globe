@@ -5,7 +5,7 @@ using System;
 
 public class CameraManager : InputHandler
 {
-    public static Action<float> OnZoomChanged;
+    public Action<float> OnZoomChanged;
 
     [SerializeField]
     private float MinZ;
@@ -23,13 +23,6 @@ public class CameraManager : InputHandler
         {
             Debug.LogError("No camera attached to CameraManager!");
         }
-
-        GlobeManager.OnReset += ResetZoom;
-    }
-
-    private void OnDestroy()
-    {
-        GlobeManager.OnReset -= ResetZoom;
     }
 
     public override void HandleInput(InputInfo input)

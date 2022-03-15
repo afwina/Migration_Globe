@@ -14,11 +14,17 @@ public static class DataManager
     public static List<string> Origins { private set; get; }
     public static List<string> Destinations { private set; get; }
     private static Dictionary<string, int[]> TotalPopulation;
+    private static Dictionary<string, int> TotalMigrants;
     private static Dictionary<string, uint[,]> MigrationData; // year[dest,origin]
     private static Dictionary<string, uint[]> TotalEmigrants; // [year][origin], people from origin to WORLD
     private static Dictionary<string, uint[]> TotalImmigrants; // [year][dest], people going into dest
     private static uint MaxEmigrationTotal = 0;
     private static uint MaxImmigrationTotal = 0;
+
+    public static int GetTotalMigrants(string year)
+    {
+        return TotalMigrants[year];
+    }
 
     public static uint GetMaxTotal(FlowMode mode)
     {
@@ -171,6 +177,7 @@ public static class DataManager
             MigrationData = new Dictionary<string, uint[,]>();
             TotalEmigrants = new Dictionary<string, uint[]>();
             TotalImmigrants = new Dictionary<string, uint[]>();
+            TotalMigrants = new Dictionary<string, int>();
 
             Destinations = reader.ReadLine().Split(',').Skip(1).ToList();
             Origins = reader.ReadLine().Split(',').Skip(3).ToList();
@@ -186,6 +193,7 @@ public static class DataManager
                 {
                     TotalEmigrants.Add(year,counts.Skip(1).ToArray());
                     MaxEmigrationTotal = Math.Max(counts.Skip(1).Max(), MaxEmigrationTotal);
+                    TotalMigrants.Add(year, (int) counts[0]);
                     continue;
                 }
 

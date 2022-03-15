@@ -41,7 +41,7 @@ public class VisManager : MonoBehaviour
         FlowModeController.Setup(new List<FlowMode> {FlowMode.Immigration, FlowMode.Emigration}, (int)Config.DefaultFlowMode, Config);
         FlowModeController.OnSliderChange += SetFlow;
 
-        Globe.Initialize();
+        Globe.Initialize(Config.ZeroColor);
         Globe.ColorGlobe(Config.NoDataColor);
         Globe.OnCountryHoveredChanged += HandleGlobeHover;
         Globe.OnGlobeClicked += HandleGlobeClick;
@@ -52,6 +52,7 @@ public class VisManager : MonoBehaviour
 
         SetState(VisStates.WorldFocusState);
         VisualizeTotal(Config.DefaultFlowMode, Config.DefaultYear);
+        InfoPanel.DisplayTotalTitle(CurrentMode, CurrentYear);
     }
 
     private void OnDestroy()

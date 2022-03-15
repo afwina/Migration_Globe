@@ -8,6 +8,7 @@ public class VisConfig : ScriptableObject
     public Color ImmigrationColor;
     public Color EmigrationColor;
     public Color NoDataColor;
+    public Color ZeroColor;
     public Gradient ImmigrationGradient;
     public Gradient EmigrationGradient;
     public float YearSwitchDuration;

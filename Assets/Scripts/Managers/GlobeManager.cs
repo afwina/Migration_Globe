@@ -27,11 +27,14 @@ public class GlobeManager : InputHandler
     private float RotateSensitivity;
     private WorldMapGlobe WPMGlobe;
     private int HoveredCountryIndex = -1;
-    public void Initialize()
+
+    private Color ZeroColor;
+    public void Initialize(Color zeroColor)
     {
         WPMGlobe = WorldMapGlobe.instance;
         transform.rotation = Quaternion.Euler(DefaultRotation);
         RotateSensitivity = RotateSensitivityMax;
+        ZeroColor = zeroColor;
     }
 
     public override void HandleInput(InputInfo input)
@@ -107,7 +110,15 @@ public class GlobeManager : InputHandler
         for (int i = 0; i < data.Length; i++)
         {
             float time = data[i] / max;
-            var color = colorGradient.Evaluate(time);
+            Color color;
+            if (time == 0)
+            {
+                color = ZeroColor;
+            }
+            else
+            {
+                color = colorGradient.Evaluate(time);
+            }
             WPMGlobe.FadeCountryIntoColor(countries[i], color, duration);
         }
     }

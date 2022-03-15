@@ -11,6 +11,8 @@ public class ScaleLegend : MonoBehaviour
     private TextMeshProUGUI MinText;
     [SerializeField]
     private TextMeshProUGUI MaxText;
+    [SerializeField]
+    private UIGradient_Extended Gradient;
     public void Initialize(Color noDataColor)
     {
         NoDataSwatch.color = noDataColor;
@@ -20,5 +22,8 @@ public class ScaleLegend : MonoBehaviour
     {
         MinText.text = NumberFormatter.Format(min);
         MaxText.text = NumberFormatter.Format(max);
+        Gradient.m_colors = gradient;
+        Gradient.gameObject.SetActive(false);
+        Gradient.gameObject.SetActive(true);
     }
 }

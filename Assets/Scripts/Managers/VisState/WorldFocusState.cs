@@ -9,12 +9,12 @@ public class WorldFocusState : VisState
         vis.CurrentCountry = country;
         if (country == null)
         {
-            vis.InfoPanel.Hide();
+            vis.InfoPanel.DisplayTotalTitle(vis.CurrentMode, vis.CurrentYear);
         }
         else
         {
             vis.HighlightCountry(country);
-            vis.InfoPanel.DisplayTotal(country, vis.CurrentYear);
+            vis.InfoPanel.DisplayCountryTotal(country, vis.CurrentYear);
         }
 
         return this;
@@ -30,7 +30,11 @@ public class WorldFocusState : VisState
         vis.VisualizeTotal(vis.CurrentMode, year);
         if (vis.CurrentCountry != null)
         {
-            vis.InfoPanel.DisplayTotal(vis.CurrentCountry, year);
+            vis.InfoPanel.DisplayCountryTotal(vis.CurrentCountry, year);
+        }
+        else
+        {
+            vis.InfoPanel.DisplayTotalTitle(vis.CurrentMode, year);
         }
 
         return this;

@@ -8,11 +8,8 @@ public class InfoField : MonoBehaviour
     [TextArea]
     public string Format;
 
+    [SerializeField]
     private TextMeshProUGUI text;
-    public void Start()
-    {
-        text = GetComponent<TextMeshProUGUI>();
-    }
 
     public void Display(params string[] input)
     {

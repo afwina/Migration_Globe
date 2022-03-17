@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+using System;
 
 namespace WPM
 {
     public partial class WorldMapGlobe : MonoBehaviour
     {
+        private Dictionary<string, Tuple<Coroutine, Color>> StoppableCoroutines = new Dictionary<string, Tuple<Coroutine, Color>>();
         public void ColorAllRegionsInstant(Color color)
-        {           
+        {
             foreach (var country in countries)
             {
                 ToggleCountrySurface(country.name, true, color);
@@ -81,20 +82,36 @@ namespace WPM
             return -1;
         }
 
-        public void EnlargeCountry(string country)
+        public void GlowCountry(string country, float duration, Color endColor)
         {
             int index = GetCountryIndex(country);
             if (index != -1)
             {
-                var regions = countries[index].regions;
-                GameObject[] surfs = new GameObject[regions.Count];
-                for (int i = 0; i < regions.Count; i++)
+                Coroutine co = StartCoroutine(FadeColor(index, endColor, duration));
+                if (StoppableCoroutines.TryGetValue(country, out Tuple<Coroutine, Color> tuple))
                 {
-                    int cacheIndex = GetCacheIndexForCountryRegion(index, i);
-                    surfs[i] = surfaces[cacheIndex];
-                    surfs[i].transform.localScale = new Vector3(1.05f,1.05f, 1.05f);
+                    StoppableCoroutines[country] = new Tuple<Coroutine, Color>(co, countries[index].regions[0].customMaterial.color);
+                }
+                else
+                {
+                    StoppableCoroutines.Add(country, new Tuple<Coroutine, Color>(co, countries[index].regions[0].customMaterial.color));
                 }
             }
+        }
+
+        public void StopGlowCountry(string country)
+        {
+            if (StoppableCoroutines.TryGetValue(country, out Tuple<Coroutine, Color> tuple))
+            {
+                StopCoroutine(tuple.Item1);
+                FadeCountryIntoColor(country, tuple.Item2, 0.5f);
+                StoppableCoroutines.Remove(country);
+            }
+        }
+
+        public void PulseCountry(string country, Color color1, Color color2)
+        {
+
         }
     }
 }

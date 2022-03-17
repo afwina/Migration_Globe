@@ -8,7 +8,7 @@ public class VisManager : MonoBehaviour
     public const string World = "World";
 
     [SerializeField]
-    private VisConfig Config;
+    public VisConfig Config;
     [SerializeField]
     private ScaleLegend ScaleLegend;
     [SerializeField]
@@ -22,6 +22,9 @@ public class VisManager : MonoBehaviour
     [SerializeField]
     private InfoPanel m_InfoPanel;
     public InfoPanel InfoPanel => m_InfoPanel;
+    [SerializeField]
+    private BackButton m_BackButton;
+    public BackButton BackButton => m_BackButton;
 
     [HideInInspector]
     public FlowMode CurrentMode;
@@ -47,12 +50,15 @@ public class VisManager : MonoBehaviour
         Globe.OnGlobeClicked += HandleGlobeClick;
         Globe.OnReset += Camera.ResetZoom;
         Globe.OnHoldReleased += HandleGlobeHoldReleased;
+        Globe.OnHold += HandleGlobeHold;
 
         Camera.OnZoomChanged += Globe.AdjustRotateSensitivity;
 
-        SetState(VisStates.WorldFocusState);
+        BackButton.OnClick += HandleBack;
+
         VisualizeTotal(Config.DefaultFlowMode, Config.DefaultYear);
         InfoPanel.DisplayTotalTitle(CurrentMode, CurrentYear);
+        SetState(VisStates.WorldFocusState);
     }
 
     private void OnDestroy()
@@ -63,7 +69,9 @@ public class VisManager : MonoBehaviour
         Globe.OnGlobeClicked -= HandleGlobeClick;
         Globe.OnReset -= Camera.ResetZoom;
         Globe.OnHoldReleased -= HandleGlobeHoldReleased;
+        Globe.OnHold -= HandleGlobeHold;
         Camera.OnZoomChanged -= Globe.AdjustRotateSensitivity;
+        BackButton.OnClick -= HandleBack;
     }
 
     private void SetState(VisState newState)
@@ -130,19 +138,58 @@ public class VisManager : MonoBehaviour
         VisState.HandleGlobeClick(this, country);
     }
 
-    private void HandleGlobeHoldReleased(string country, bool staticHold)
+    private void HandleGlobeHold(string country, bool staticHold)
     {
-        SetState(VisState.HandleGlobeHoldReleased(this, country, staticHold));
+        VisState.HandleGlobeHold(this, country, staticHold);
+    }
+
+    private void HandleGlobeHoldReleased(string country, bool staticHold, float duration)
+    {
+        SetState(VisState.HandleGlobeHoldReleased(this, country, staticHold, duration));
+    }
+
+    private void HandleBack()
+    {
+        SetState(VisState.HandleBack(this));
     }
 
     public void HighlightCountry(string country)
     {
-        Globe.HighlightCountry(country);
+        StartChargeUpAnimation(country);
+    }
+
+    public void StopHighlightCountry(string country)
+    {
+        StopChargeUpAnimation(country);
+    }
+
+    public void StartChargeUpAnimation(string country)
+    {
+        if (CurrentMode == FlowMode.Immigration)
+        {
+            Globe.WPMGlobe.GlowCountry(country, Config.FocusCountryHoldMin, Config.FocusImmColor);
+        }
+        else
+        {
+            Globe.WPMGlobe.GlowCountry(country, Config.FocusCountryHoldMin, Config.FocusEmColor);
+        }
+    }
+
+    public void StopChargeUpAnimation(string country)
+    {
+        if (country != null)
+        {
+            Globe.WPMGlobe.StopGlowCountry(country);
+        }
     }
 
     public void FocusCountry(string country)
     {
-        Globe.RotateToCountry(country);
+        Globe.WPMGlobe.FlyToCountry(country);
+    }
+
+    public void PulseCountry(string country)
+    {
 
     }
 }

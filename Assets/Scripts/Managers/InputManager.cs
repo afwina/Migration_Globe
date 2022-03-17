@@ -81,7 +81,6 @@ public class InputManager : MonoBehaviour
                 {
                     CurrentInput.MouseLHoldReleased = true;
                 }
-                CurrentInput.MouseLHoldDuration = 0;
             }
             else if (CurrentInput.MouseLPressed)
             {

@@ -10,7 +10,8 @@ public class GlobeManager : InputHandler
     public Action<string> OnCountryHoveredChanged;
     public Action<string> OnGlobeClicked;
     public Action<string, bool> OnHold;
-    public Action<string, bool> OnHoldReleased;
+    public Action<string, bool, float> OnHoldReleased;
+    public WorldMapGlobe WPMGlobe;
 
 
     [SerializeField]
@@ -25,7 +26,6 @@ public class GlobeManager : InputHandler
     private bool Dragging = false;
     private bool OverGlobe = false;
     private float RotateSensitivity;
-    private WorldMapGlobe WPMGlobe;
     private int HoveredCountryIndex = -1;
 
     private Color ZeroColor;
@@ -46,16 +46,7 @@ public class GlobeManager : InputHandler
         else if (Dragging && input.MouseLPressed)
         {
             Vector3 mouse = new Vector3(input.MousePosDelta.x, input.MousePosDelta.y) * RotateSensitivity;
-            if(Vector3.Dot(transform.up, Vector3.up) >= 0)
-            {
-                transform.Rotate(transform.up, -Vector3.Dot(mouse, Camera.main.transform.right), Space.World);
-            }
-            else
-            {
-                transform.Rotate(transform.up, Vector3.Dot(mouse, Camera.main.transform.right), Space.World);
-            }
-
-            transform.Rotate(Camera.main.transform.right, Vector3.Dot(mouse, Camera.main.transform.up), Space.World);
+            RotateGlobe(mouse);
         }
 
         if (WPMGlobe != null)
@@ -84,7 +75,7 @@ public class GlobeManager : InputHandler
             }
             else if (input.MouseLHoldReleased)
             {
-                OnHoldReleased?.Invoke(country, input.MouseLHoldStatic);
+                OnHoldReleased?.Invoke(country, input.MouseLHoldStatic, input.MouseLHoldDuration);
             }
         }
     }
@@ -97,6 +88,20 @@ public class GlobeManager : InputHandler
         OnReset?.Invoke(timeToReset);
         InputManager.Disable();
         StartCoroutine(ResetRotation(timeToReset, () => InputManager.Enable()));
+    }
+
+    public void RotateGlobe(Vector3 mouse)
+    {
+        if (Vector3.Dot(transform.up, Vector3.up) >= 0)
+        {
+            transform.Rotate(transform.up, -Vector3.Dot(mouse, Camera.main.transform.right), Space.World);
+        }
+        else
+        {
+            transform.Rotate(transform.up, Vector3.Dot(mouse, Camera.main.transform.right), Space.World);
+        }
+
+        transform.Rotate(Camera.main.transform.right, Vector3.Dot(mouse, Camera.main.transform.up), Space.World);
     }
 
     public void ColorGlobe(Color color)
@@ -123,11 +128,6 @@ public class GlobeManager : InputHandler
         }
     }
 
-    public void HighlightCountry(string country)
-    {
-        //Globe.EnlargeCountry(country);
-    }
-
     private IEnumerator ResetRotation(float timeToReset, Action onComplete)
     {
         var start = transform.rotation;
@@ -147,11 +147,6 @@ public class GlobeManager : InputHandler
     public void AdjustRotateSensitivity(float percent)
     {
         RotateSensitivity = RotateSensitivityMin + ((RotateSensitivityMax - RotateSensitivityMin) * percent);
-    }
-
-    public void RotateToCountry(string country)
-    {
-        WPMGlobe.FlyToCountry(country);
     }
 
     private void OnMouseDown()

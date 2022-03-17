@@ -8,11 +8,11 @@ public class StartManager : MonoBehaviour
     private VisManager VisManager;
     private void Awake()
     {
-        DataManager.LoadData();
     }
 
     void Start()
     {
+        DataManager.LoadData();
         VisManager.Initialize();
     }
 

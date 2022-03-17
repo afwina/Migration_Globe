@@ -18,6 +18,8 @@ MonoBehaviour:
   EmigrationColor: {r: 0.011764707, g: 0.454902, b: 0.7294118, a: 1}
   NoDataColor: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
   ZeroColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 1}
+  FocusImmColor: {r: 1, g: 0.2398411, b: 0, a: 1}
+  FocusEmColor: {r: 0, g: 0.11962399, b: 0.6784314, a: 1}
   ImmigrationGradient:
     serializedVersion: 2
     key0: {r: 0.990566, g: 0.84074706, b: 0.735137, a: 1}
@@ -29,7 +31,7 @@ MonoBehaviour:
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
-    ctime1: 21203
+    ctime1: 20971
     ctime2: 65535
     ctime3: 65535
     ctime4: 65535
@@ -58,7 +60,7 @@ MonoBehaviour:
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
-    ctime1: 25636
+    ctime1: 25559
     ctime2: 65535
     ctime3: 65535
     ctime4: 0
@@ -78,3 +80,4 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   YearSwitchDuration: 0.5
   FlowModeSwitchDuration: 1
+  FocusCountryHoldMin: 0.8

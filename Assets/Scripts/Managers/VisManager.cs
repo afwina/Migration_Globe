@@ -32,6 +32,8 @@ public class VisManager : MonoBehaviour
     public string CurrentYear;
     [HideInInspector]
     public string CurrentCountry = null;
+    [HideInInspector]
+    public string SecondaryCountry = null;
 
     private VisState VisState;
 
@@ -56,8 +58,8 @@ public class VisManager : MonoBehaviour
 
         BackButton.OnClick += HandleBack;
 
-        VisualizeTotal(Config.DefaultFlowMode, Config.DefaultYear);
-        InfoPanel.DisplayTotalTitle(CurrentMode, CurrentYear);
+        CurrentMode = Config.DefaultFlowMode;
+        CurrentYear = Config.DefaultYear;
         SetState(VisStates.WorldFocusState);
     }
 
@@ -78,9 +80,11 @@ public class VisManager : MonoBehaviour
     {
         if (newState != VisState)
         {
-            VisState?.Exit();
+            VisState?.Exit(this);
             VisState = newState;
             VisState.Enter(this);
+            Debug.Log("State changed: " + VisState.GetType().ToString());
+
         }
     }
 
@@ -91,6 +95,7 @@ public class VisManager : MonoBehaviour
         Gradient colorGradient = mode == FlowMode.Immigration ? Config.ImmigrationGradient : Config.EmigrationGradient;
         float duration = mode != CurrentMode ? Config.FlowModeSwitchDuration : Config.YearSwitchDuration;
         float max = Mathf.Round(DataManager.GetMaxTotal(mode) / 100000f) *100000;
+
         UpdateVis(startingData, max, countries, colorGradient, duration);
 
         CurrentMode = mode;
@@ -101,11 +106,23 @@ public class VisManager : MonoBehaviour
     {
         uint[] data = mode == FlowMode.Emigration ? DataManager.GetEmigrantsFrom(country, year) : DataManager.GetImmigrationTo(country, year);
         List<string> countries = mode == FlowMode.Emigration ? DataManager.Destinations : DataManager.Origins;
-        Gradient colorGradient = mode == FlowMode.Immigration ? Config.ImmigrationGradient : Config.EmigrationGradient;
-        float duration = mode != CurrentMode ? Config.FlowModeSwitchDuration : Config.YearSwitchDuration;
-        float max = Mathf.Round(data.Max() / 100f) * 100;
-        
-        UpdateVis(data, max, countries, colorGradient, duration);
+
+        if (data.Length > 0)
+        {
+            Gradient colorGradient = mode == FlowMode.Immigration ? Config.ImmigrationGradient : Config.EmigrationGradient;
+            float duration = mode != CurrentMode ? Config.FlowModeSwitchDuration : Config.YearSwitchDuration;
+            float max = Mathf.Round(data.Max() / 100f) * 100;
+            UpdateVis(data, max, countries, colorGradient, duration);
+
+        }
+        else
+        {
+            Globe.WPMGlobe.StopFading();
+            foreach (string c in countries)
+            {
+                Globe.WPMGlobe.UpdateCountry(c, Config.NoDataColor, Config.YearSwitchDuration);
+            }
+        }
 
         CurrentMode = mode;
         CurrentYear = year;
@@ -135,7 +152,7 @@ public class VisManager : MonoBehaviour
 
     private void HandleGlobeClick(string country)
     {
-        VisState.HandleGlobeClick(this, country);
+        SetState(VisState.HandleGlobeClick(this, country));
     }
 
     private void HandleGlobeHold(string country, bool staticHold)
@@ -155,41 +172,47 @@ public class VisManager : MonoBehaviour
 
     public void HighlightCountry(string country)
     {
-        StartChargeUpAnimation(country);
-    }
-
-    public void StopHighlightCountry(string country)
-    {
-        StopChargeUpAnimation(country);
+        GlowCountry(country, Config.HighlightDuration);
     }
 
     public void StartChargeUpAnimation(string country)
     {
+        GlowCountry(country, Config.FocusCountryHoldMin);
+    }
+
+    private void GlowCountry(string country, float time)
+    {
+        if (string.IsNullOrEmpty(country))
+        {
+            return;
+        }
+
         if (CurrentMode == FlowMode.Immigration)
         {
-            Globe.WPMGlobe.GlowCountry(country, Config.FocusCountryHoldMin, Config.FocusImmColor);
+            Globe.WPMGlobe.GlowCountry(country, time, Config.FocusImmColor);
         }
         else
         {
-            Globe.WPMGlobe.GlowCountry(country, Config.FocusCountryHoldMin, Config.FocusEmColor);
+            Globe.WPMGlobe.GlowCountry(country, time, Config.FocusEmColor);
         }
     }
 
-    public void StopChargeUpAnimation(string country)
+    public void StopCountryAnimation(string country)
     {
         if (country != null)
         {
-            Globe.WPMGlobe.StopGlowCountry(country);
+            Globe.WPMGlobe.StopCountryCoroutine(country);
         }
     }
 
     public void FocusCountry(string country)
     {
-        Globe.WPMGlobe.FlyToCountry(country);
+        Globe.WPMGlobe.FlyToCountry(country, Config.RotateToCountryDuration);
     }
 
     public void PulseCountry(string country)
     {
-
+        Gradient grad = CurrentMode == FlowMode.Immigration ? Config.PulseImmGradient : Config.PulseEmGradient;
+        Globe.WPMGlobe.PulseCountry(country, grad, Config.PulseCountryPeriod);
     }
 }

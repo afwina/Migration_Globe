@@ -124,7 +124,7 @@ public class GlobeManager : InputHandler
             {
                 color = colorGradient.Evaluate(time);
             }
-            WPMGlobe.FadeCountryIntoColor(countries[i], color, duration);
+            WPMGlobe.UpdateCountry(countries[i], color, duration);
         }
     }
 

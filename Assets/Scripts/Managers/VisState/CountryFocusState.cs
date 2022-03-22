@@ -2,131 +2,77 @@
 using UnityEngine;
 
 
-public class CountryFocusState : VisState
+public class CountryFocusState : AbstractCountryFocusState
 {
-    public string SecondaryCountry = null;
-    public string HeldCountry = null;
     public override void Enter(VisManager vis) 
     {
         base.Enter(vis);
+
         vis.BackButton.Show();
+        vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, vis.CurrentMode);
+
         vis.VisualizeCountryMigration(vis.CurrentMode, vis.CurrentYear, vis.CurrentCountry);
         vis.FocusCountry(vis.CurrentCountry);
-        vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, vis.CurrentMode);
+        vis.PulseCountry(vis.CurrentCountry);
+
         HeldCountry = null;
     }
 
-    public override void Exit()
+    public override void Exit(VisManager vis)
     {
-        SecondaryCountry = null;
         HeldCountry = null;
     }
 
     public override VisState HandleGlobeClick(VisManager vis, string country)
     {
-        if (vis.CurrentCountry.Equals(country))
+        vis.SecondaryCountry = country;
+        if (!string.IsNullOrEmpty(country) && !vis.CurrentCountry.Equals(country))
         {
-            country = null;
-        }
-
-        SecondaryCountry = country;
-        if (country != null)
-        {
-            vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, country, vis.CurrentYear, vis.CurrentMode);
-        }
-        else
-        {
-            vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, vis.CurrentMode);
-        }
-        return this;
-    }
-
-    public override VisState HandleGlobeHover(VisManager vis, string country)
-    {
-        return this;
-    }
-
-    public override VisState HandleYearChange(VisManager vis, string year)
-    {
-        vis.VisualizeCountryMigration(vis.CurrentMode, year, vis.CurrentCountry);
-        if (SecondaryCountry != null)
-        {
-            vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, SecondaryCountry, year, vis.CurrentMode);
-        }
-        else
-        {
-            vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, year, vis.CurrentMode);
+            return VisStates.Country2CountryFocusState;
         }
 
         return this;
     }
 
-    public override VisState HandleFlowChange(VisManager vis, FlowMode mode)
+    public override void HandleYearChange(VisManager vis, string year)
     {
-        vis.VisualizeCountryMigration(mode, vis.CurrentYear, vis.CurrentCountry);
-        if (SecondaryCountry != null)
-        {
-            vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, SecondaryCountry, vis.CurrentYear, mode);
-        }
-        else
-        {
-            vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, mode);
-        }
-        return this;
+        base.HandleYearChange(vis, year);
+        vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, year, vis.CurrentMode);
     }
 
-    public override VisState HandleGlobeHold(VisManager vis, string country, bool staticHold)
+    public override void HandleFlowChange(VisManager vis, FlowMode mode)
     {
-        if (string.IsNullOrEmpty(HeldCountry) && staticHold && country != null)
-        {
-            HeldCountry = country;
-            vis.StartChargeUpAnimation(country);
-        }
-        else if (!string.IsNullOrEmpty(HeldCountry))
-        {
-            if (HeldCountry != country || !staticHold)
-            {
-                vis.StopChargeUpAnimation(HeldCountry);
-                HeldCountry = null;
-            }
-        }
-        return this;
+        base.HandleFlowChange(vis, mode);
+        vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, mode);
     }
 
     public override VisState HandleGlobeHoldReleased(VisManager vis, string country, bool staticHold, float duration)
     {
-        if (country == null || !staticHold || duration < vis.Config.FocusCountryHoldMin || HeldCountry != country)
+        if (string.IsNullOrEmpty(country) || !staticHold || duration < vis.Config.FocusCountryHoldMin || HeldCountry != country)
         {
-            vis.StopChargeUpAnimation(HeldCountry);
+            if (HeldCountry != vis.CurrentCountry)
+            {
+                vis.StopCountryAnimation(HeldCountry);
+            }
             HeldCountry = null;
             return this;
         }
 
+        vis.StopCountryAnimation(vis.CurrentCountry);
         vis.CurrentCountry = country;
-        SecondaryCountry = null;
 
         vis.VisualizeCountryMigration(vis.CurrentMode, vis.CurrentYear, country);
         vis.FocusCountry(country);
+        vis.PulseCountry(country);
 
         vis.InfoPanel.DisplayCountryFocus(country, vis.CurrentYear, vis.CurrentMode);
-        vis.PulseCountry(country);
         return this;
     }
 
     public override VisState HandleBack(VisManager vis)
     {
-        if (SecondaryCountry == null)
-        {
-            vis.CurrentCountry = null;
-            return VisStates.WorldFocusState;
-        }
-
-        SecondaryCountry = null;
-        vis.VisualizeCountryMigration(vis.CurrentMode, vis.CurrentYear, vis.CurrentCountry);
-        vis.FocusCountry(vis.CurrentCountry);
-
-        vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, vis.CurrentMode);
-        vis.PulseCountry(vis.CurrentCountry);
-        return this;
+        vis.StopCountryAnimation(vis.CurrentCountry);
+        vis.CurrentCountry = null;
+        return VisStates.WorldFocusState;
     }
 }

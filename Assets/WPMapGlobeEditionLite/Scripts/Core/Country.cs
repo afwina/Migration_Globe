@@ -6,6 +6,8 @@ namespace WPM {
 
 	public class Country: IAdminEntity {
 
+		public Color valueColor;
+		public bool highlighted;
 		/// <summary>
 		/// Country name.
 		/// </summary>

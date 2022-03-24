@@ -26,7 +26,7 @@ public class WorldFocusState : AbstarctWorldFocusState
     public override void HandleFlowChange(VisManager vis, FlowMode mode)
     {
         base.HandleFlowChange(vis, mode);
-        vis.InfoPanel.DisplayTotalTitle(mode, vis.CurrentYear);
+        vis.InfoPanel.DisplayTotalTitle(mode, vis.CurrentYear, false);
     }
 
     public override void HandleYearChange(VisManager vis, string year)

@@ -25,7 +25,7 @@ public class Country2CountryFocusState : AbstractCountryFocusState
             vis.StopCountryAnimation(vis.SecondaryCountry);
             vis.HighlightCountry(country);
             vis.SecondaryCountry = country;
-            vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, country, vis.CurrentYear, vis.CurrentMode);
+            vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, country, vis.CurrentYear, vis.CurrentMode, false);
         }
 
         return this;

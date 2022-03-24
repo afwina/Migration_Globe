@@ -15,10 +15,19 @@ public class InfoField : MonoBehaviour
     private Animator Animator;
 
     private static readonly int Update = Animator.StringToHash("Update");
-    public void Display(params string[] input)
+
+    public void Display (params string[] input)
+    {
+        Display(true, input);
+    }
+
+    public void Display(bool animate, params string[] input)
     {
         gameObject.SetActive(true);
-        Animator.SetTrigger(Update);
+        if (animate)
+        {
+            Animator.SetTrigger(Update);
+        }
         text.text = string.Format(Format, input);
     }
 

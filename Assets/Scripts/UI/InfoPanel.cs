@@ -6,7 +6,7 @@ using TMPro;
 public class InfoPanel : MonoBehaviour
 {
     private const int TOP_STATS_COUNT = 3;
-    private const float UPDATE_DELAY = 0.1f;
+    private const float UPDATE_DELAY = 0;
 
     [SerializeField]
     private TextMeshProUGUI Title;
@@ -113,7 +113,7 @@ public class InfoPanel : MonoBehaviour
 
     }
 
-    public void DisplayCountry2CountryFocus(string country, string secondaryCountry, string year, FlowMode mode)
+    public void DisplayCountry2CountryFocus(string country, string secondaryCountry, string year, FlowMode mode, bool animateTotal = true)
     {
         Year.text = year;
 
@@ -145,17 +145,17 @@ public class InfoPanel : MonoBehaviour
         else
         {
             NoData.SetActive(false);
-            totalField.Display(NumberFormatter.Format(total));
+            totalField.Display(animateTotal, NumberFormatter.Format(total));
         }
 
         if (migrants == -1)
         {
-            textField.Display(UPDATE_DELAY, country, secondaryCountry, "No Data");
+            textField.Display(country, secondaryCountry, "No Data");
 
         }
         else
         {
-            textField.Display(UPDATE_DELAY, country, secondaryCountry, NumberFormatter.Format(migrants));
+            textField.Display(country, secondaryCountry, NumberFormatter.Format(migrants));
         }
     }
 
@@ -178,10 +178,10 @@ public class InfoPanel : MonoBehaviour
         NoData.SetActive(false);
     }
 
-    public void DisplayTotalTitle(FlowMode mode, string year)
+    public void DisplayTotalTitle(FlowMode mode, string year, bool animate = true)
     {
         HideFields();
-        TotalMigrants.Display(NumberFormatter.Format(DataManager.GetTotalMigrants(year)));
+        TotalMigrants.Display(animate, NumberFormatter.Format(DataManager.GetTotalMigrants(year)));
         if (mode == FlowMode.Immigration)
         {
             Title.text = ImmTotalTitleFormat;

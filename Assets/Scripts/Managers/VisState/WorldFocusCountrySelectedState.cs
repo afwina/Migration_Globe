@@ -39,6 +39,7 @@ public class WorldFocusCountrySelectedState : AbstarctWorldFocusState
         vis.StopCountryAnimation(vis.CurrentCountry);
         base.HandleFlowChange(vis, mode);
         vis.HighlightCountry(vis.CurrentCountry);
+        vis.InfoPanel.DisplayCountryTotal(vis.CurrentCountry, vis.CurrentYear, mode);
     }
 
     public override VisState HandleGlobeHoldReleased(VisManager vis, string country, bool staticHold, float duration)

@@ -13,7 +13,8 @@ public abstract class SliderController<T> : MonoBehaviour
 
     protected List<T> Options;
     protected int CurrentIndex = 0;
-
+    protected int PreviousIndex = 0;
+    protected bool SetupDone = false;
     public void Setup(List<T> options, int defaultIndex = 0, object custom = null)
     {
         Options = options;
@@ -23,21 +24,23 @@ public abstract class SliderController<T> : MonoBehaviour
         Slider.wholeNumbers = true;
 
         CurrentIndex = defaultIndex >= 0 ? defaultIndex : 0;
-        Slider.value = CurrentIndex;
 
-        SetupUI(custom);
+        SetupSlider(custom);
+        SetupDone = true;
     }
 
     public void UI_OnSliderChanged(float index)
     {
-        SliderChanged((int)index);
-    }
-
-    protected virtual void SliderChanged(int index)
-    {
-        CurrentIndex = index;
+        PreviousIndex = CurrentIndex;
+        CurrentIndex = (int)index;
+        if (SetupDone)
+        {
+            UpdateSlider(CurrentIndex);
+        }
         OnSliderChange?.Invoke(Options[CurrentIndex]);
     }
 
-    protected abstract void SetupUI(object custom = null);
+    protected abstract void UpdateSlider(int index);
+
+    protected abstract void SetupSlider(object custom = null);
 }

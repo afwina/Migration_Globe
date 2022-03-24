@@ -5,6 +5,9 @@ using TMPro;
 
 public class InfoPanel : MonoBehaviour
 {
+    private const int TOP_STATS_COUNT = 3;
+    private const float UPDATE_DELAY = 0.1f;
+
     [SerializeField]
     private TextMeshProUGUI Title;
     [SerializeField]
@@ -22,12 +25,16 @@ public class InfoPanel : MonoBehaviour
     private InfoField EmFocus;
     [SerializeField]
     private InfoField ImmFocus;
+    [SerializeField]
+    private InfoField EmTop;
+    [SerializeField]
+    private InfoField ImmTop;
 
     private const string ImmFocusTitleFormat = "Immigration to {0}";
     private const string EmFocusTitleFormat = "Emigration from {0}";
-    private const string ImmTotalTitleFormat = "TOTAL IMMIGRATION WORLDWIDE";
-    private const string EmTotalTitleFormat = "TOTAL EMIGRATION WORLDWIDE";
-    public void DisplayCountryTotal(string country, string year)
+    private const string ImmTotalTitleFormat = "IMMIGRATION WORLDWIDE";
+    private const string EmTotalTitleFormat = "EMIGRATION WORLDWIDE";
+    public void DisplayCountryTotal(string country, string year, FlowMode mode)
     {
         Title.gameObject.SetActive(true);
         Year.gameObject.SetActive(true);
@@ -36,16 +43,27 @@ public class InfoPanel : MonoBehaviour
 
         HideFields();
 
-        int totalIm = DataManager.GetTotalImmigrantsTo(country, year);
-        int totalEm = DataManager.GetTotalEmigrantsFrom(country, year);
-        if (totalEm == -1 || totalIm == -1)
+        int total;
+        InfoField field;
+        if (mode == FlowMode.Immigration)
+        {
+            total = DataManager.GetTotalImmigrantsTo(country, year);
+            field = ImmTotal;
+        }
+        else
+        {
+            total= DataManager.GetTotalEmigrantsFrom(country, year);
+            field = EmTotal;
+
+        }
+
+        if (total == -1)
         {
             NoData.SetActive(true);
         }
         else
         {
-            ImmTotal.Display(NumberFormatter.Format(totalIm));
-            EmTotal.Display(NumberFormatter.Format(totalEm));
+            field.Display(NumberFormatter.Format(total));
         }
     }
 
@@ -54,17 +72,23 @@ public class InfoPanel : MonoBehaviour
         Year.text = year;
         int total;
         InfoField field;
+        List<System.Tuple<string, int>> top;
+        InfoField topField;
         if (mode == FlowMode.Immigration)
         {
             Title.text = string.Format(ImmFocusTitleFormat, country.ToUpper());
             total = DataManager.GetTotalImmigrantsTo(country, year);
             field = ImmTotal;
+            top = DataManager.GetTopImmigrantOrigins(country, year, TOP_STATS_COUNT);
+            topField = ImmTop;
         }
         else
         {
             Title.text = string.Format(EmFocusTitleFormat, country.ToUpper());
             total = DataManager.GetTotalEmigrantsFrom(country, year);
             field = EmTotal;
+            top = DataManager.GetTopEmigrantDestinations(country, year, TOP_STATS_COUNT);
+            topField = EmTop;
         }
 
         HideFields();
@@ -72,12 +96,19 @@ public class InfoPanel : MonoBehaviour
         if (total == -1)
         {
             NoData.SetActive(true);
-
         }
         else
         {
             NoData.SetActive(false);
-            EmTotal.Display(NumberFormatter.Format(total));
+            field.Display(NumberFormatter.Format(total));
+
+            string[] args = new string[TOP_STATS_COUNT * 2];
+            for(int i = 0; i < TOP_STATS_COUNT; i++)
+            {
+                args[i*2] = top[i].Item1;
+                args[i * 2 + 1] = NumberFormatter.Format(top[i].Item2);
+            }
+            topField.Display(UPDATE_DELAY, args);
         }
 
     }
@@ -107,17 +138,6 @@ public class InfoPanel : MonoBehaviour
 
         HideFields();
 
-        if (migrants == -1)
-        {
-            textField.Display(country, secondaryCountry, "No Data");
-
-        }
-        else
-        {
-            textField.Display(country, secondaryCountry, NumberFormatter.Format(migrants));
-        }
-
-
         if (total == -1)
         {
             NoData.SetActive(true);
@@ -126,6 +146,16 @@ public class InfoPanel : MonoBehaviour
         {
             NoData.SetActive(false);
             totalField.Display(NumberFormatter.Format(total));
+        }
+
+        if (migrants == -1)
+        {
+            textField.Display(UPDATE_DELAY, country, secondaryCountry, "No Data");
+
+        }
+        else
+        {
+            textField.Display(UPDATE_DELAY, country, secondaryCountry, NumberFormatter.Format(migrants));
         }
     }
 
@@ -143,6 +173,8 @@ public class InfoPanel : MonoBehaviour
         EmTotal.Hide();
         EmFocus.Hide();
         ImmFocus.Hide();
+        EmTop.Hide();
+        ImmTop.Hide();
         NoData.SetActive(false);
     }
 

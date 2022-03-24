@@ -9,6 +9,30 @@ namespace WPM
     {
         private Dictionary<string, Coroutine> HighlightingAnims = new Dictionary<string, Coroutine>();
         private List<Coroutine> UpdateAnims = new List<Coroutine>();
+        private Dictionary<string, GameObject[]> Outlines = new Dictionary<string, GameObject[]>();
+
+        public void CreateOutlines()
+        {
+            for (int i = 0; i < countries.Length; i++)
+            {
+                var regions = countries[i].regions;
+                for (int j = 0; j < regions.Count; j++)
+                {
+                    int cacheIndex = GetCacheIndexForCountryRegion(i, j);
+                    var outline = DrawCountryRegionOutline(regions[j], surfaces[cacheIndex]);
+                    outline.SetActive(false);
+                    if (Outlines.ContainsKey(countries[i].name))
+                    {
+                        Outlines[countries[i].name][j] = outline;
+                    }
+                    else
+                    {
+                        Outlines.Add(countries[i].name, new GameObject[regions.Count]);
+                        Outlines[countries[i].name][0] = outline;
+                    }
+                }
+            }
+        }
 
         public void ColorAllRegionsInstant(Color color)
         {
@@ -103,29 +127,6 @@ namespace WPM
             return -1;
         }
 
-        public void GlowCountry(string country, float duration, Color endColor)
-        {
-            int index = GetCountryIndex(country);
-            if (index != -1)
-            {
-                if (HighlightingAnims.ContainsKey(country))
-                {
-                    StopCoroutine(HighlightingAnims[country]);
-                }
-
-                Coroutine co = StartCoroutine(FadeColor(index, endColor, duration));
-                countries[index].highlighted = true;
-                if (HighlightingAnims.ContainsKey(country))
-                {
-                    HighlightingAnims[country] = co;
-                }
-                else
-                {
-                    HighlightingAnims.Add(country, co);
-                }
-            }
-        }
-
         public void StopCountryCoroutine(string country)
         {
             if (HighlightingAnims.TryGetValue(country, out Coroutine co))
@@ -138,6 +139,73 @@ namespace WPM
                     countries[index].highlighted = false;
                     StartCoroutine(FadeColor(index, countries[index].valueColor, 0.1f));
                 }
+
+                foreach (var outline in Outlines[country])
+                {
+                    outline.SetActive(false);
+                }
+            }
+        }
+
+        private void RegisterHighlightingAnim(string country, int index, Coroutine co)
+        {
+            if (HighlightingAnims.ContainsKey(country))
+            {
+                StopCoroutine(HighlightingAnims[country]);
+            }
+
+            countries[index].highlighted = true;
+            if (HighlightingAnims.ContainsKey(country))
+            {
+                HighlightingAnims[country] = co;
+            }
+            else
+            {
+                HighlightingAnims.Add(country, co);
+            }
+        }
+
+        public void GlowCountry(string country, float duration, Color endColor)
+        {
+            int index = GetCountryIndex(country);
+            if (index != -1)
+            {
+                Coroutine co = StartCoroutine(FadeColor(index, endColor, duration));
+                RegisterHighlightingAnim(country, index, co);
+            }
+        }
+
+        public void OutlineCountry(string country, float duration, Gradient grad)
+        {
+            int index = GetCountryIndex(country);
+            if (index != -1)
+            {
+                Coroutine co = StartCoroutine(PulseOutlineIndefinitely(country, grad, duration));
+                RegisterHighlightingAnim(country, index, co);
+            }
+        }
+
+        private IEnumerator PulseOutlineIndefinitely(string country, Gradient grad, float duration)
+        {
+            foreach (var outline in Outlines[country])
+            {
+                outline.SetActive(true);
+            }
+
+            float time = 0;
+            bool cycle = true;
+            var mesh = Outlines[country][0].GetComponent<MeshRenderer>().sharedMaterial;
+            while (true)
+            {
+                if (time > duration)
+                {
+                    time = 0;
+                    cycle = !cycle;
+                }
+
+                mesh.color = cycle ? grad.Evaluate(time / duration) : grad.Evaluate((duration - time) / duration);
+                time += Time.deltaTime;
+                yield return null;
             }
         }
 
@@ -146,25 +214,12 @@ namespace WPM
             int index = GetCountryIndex(country);
             if (index != -1)
             {
-                if (HighlightingAnims.ContainsKey(country))
-                {
-                    StopCoroutine(HighlightingAnims[country]);
-                }
-
                 Coroutine co = StartCoroutine(PulseIndefinitely(index, grad, period));
-                countries[index].highlighted = true;
-                if (HighlightingAnims.ContainsKey(country))
-                {
-                    HighlightingAnims[country] = co;
-                }
-                else
-                {
-                    HighlightingAnims.Add(country, co);
-                }
+                RegisterHighlightingAnim(country, index, co);
             }
         }
 
-        public IEnumerator PulseIndefinitely(int countryIndex, Gradient grad, float period)
+        private IEnumerator PulseIndefinitely(int countryIndex, Gradient grad, float period)
         {
             var regions = countries[countryIndex].regions;
             GameObject[] surfs = new GameObject[regions.Count];

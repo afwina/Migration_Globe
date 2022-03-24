@@ -129,6 +129,28 @@ public static class DataManager
         }
     }
 
+    public static List<Tuple<string, int>> GetTopEmigrantDestinations(string fromCountry, string year, int amount)
+    {
+        var top = new List<Tuple<string, int>>();
+        var all = GetEmigrantsFrom(fromCountry, year);
+        for (int i = 0; i< all.Length; i++)
+        {
+            top.Add(new Tuple<string, int>(Destinations[i], (int)all[i]));
+        }
+        return top.Count > 0 ? top.OrderByDescending(x => x.Item2).Take(amount).ToList() : null;
+    }
+
+    public static List<Tuple<string, int>> GetTopImmigrantOrigins(string toCountry, string year, int amount)
+    {
+        var top = new List<Tuple<string, int>>();
+        var all = GetImmigrationTo(toCountry, year);
+        for (int i = 0; i < all.Length; i++)
+        {
+            top.Add(new Tuple<string, int>(Origins[i], (int)all[i]));
+        }
+        return top.OrderByDescending(x => x.Item2).Take(amount).ToList();
+    }
+
     public static List<string> GetYears()
     {
         return Years;

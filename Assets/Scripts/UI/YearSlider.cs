@@ -18,7 +18,7 @@ public class YearSlider : SliderController<string>
             Slider.value = i;
             GameObject tick = Instantiate(TickPrefab, Background.transform);
             tick.GetComponent<SliderTick>().SetTick(Options[i]);
-            tick.transform.position = new Vector3(Handle.transform.position.x, Handle.transform.position.y - 6, Handle.transform.position.z);
+            tick.transform.position = new Vector3(Handle.transform.position.x, tick.transform.position.y, Handle.transform.position.z);
         }
 
         Slider.value = CurrentIndex;

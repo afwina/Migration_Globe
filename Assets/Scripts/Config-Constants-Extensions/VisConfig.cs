@@ -14,6 +14,8 @@ public class VisConfig : ScriptableObject
     public Color FocusEmColor;
     public Gradient PulseEmGradient;
     public Gradient PulseImmGradient;
+    public Gradient HighlightEmGradient;
+    public Gradient HighlightImmGradient;
     public Gradient ImmigrationGradient;
     public Gradient EmigrationGradient;
 

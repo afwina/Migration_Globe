@@ -172,16 +172,6 @@ public class VisManager : MonoBehaviour
 
     public void HighlightCountry(string country)
     {
-        GlowCountry(country, Config.HighlightDuration);
-    }
-
-    public void StartChargeUpAnimation(string country)
-    {
-        GlowCountry(country, Config.FocusCountryHoldMin);
-    }
-
-    private void GlowCountry(string country, float time)
-    {
         if (string.IsNullOrEmpty(country))
         {
             return;
@@ -189,12 +179,23 @@ public class VisManager : MonoBehaviour
 
         if (CurrentMode == FlowMode.Immigration)
         {
-            Globe.WPMGlobe.GlowCountry(country, time, Config.FocusImmColor);
+            Globe.WPMGlobe.OutlineCountry(country, Config.HighlightDuration, Config.HighlightImmGradient);
         }
         else
         {
-            Globe.WPMGlobe.GlowCountry(country, time, Config.FocusEmColor);
+            Globe.WPMGlobe.OutlineCountry(country, Config.HighlightDuration, Config.HighlightEmGradient);
         }
+    }
+
+    public void StartChargeUpAnimation(string country)
+    {
+        if (string.IsNullOrEmpty(country))
+        {
+            return;
+        }
+
+        Color color = CurrentMode == FlowMode.Immigration ? Config.FocusImmColor : Config.FocusEmColor;
+        Globe.WPMGlobe.GlowCountry(country, Config.FocusCountryHoldMin, color);
     }
 
     public void StopCountryAnimation(string country)

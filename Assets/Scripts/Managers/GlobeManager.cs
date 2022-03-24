@@ -107,8 +107,10 @@ public class GlobeManager : InputHandler
     public void ColorGlobe(Color color)
     {
         WPMGlobe.ColorAllRegionsInstant(color);
+        WPMGlobe.CreateOutlines();
+
     }
-    
+
     public void UpdateGlobe(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
     {
         WPMGlobe.StopFading();

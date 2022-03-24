@@ -52,7 +52,36 @@ MonoBehaviour:
   PulseImmGradient:
     serializedVersion: 2
     key0: {r: 1, g: 0.6627451, b: 0, a: 1}
-    key1: {r: 0.4056604, g: 0.2942326, b: 0.075264014, a: 1}
+    key1: {r: 0.7082123, g: 0.48182595, b: 0.036950447, a: 1}
+    key2: {r: 0.4056604, g: 0.2942326, b: 0.075264014, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 32174
+    ctime2: 65535
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 3
+    m_NumAlphaKeys: 2
+  HighlightEmGradient:
+    serializedVersion: 2
+    key0: {r: 0.011764707, g: 0.10588236, b: 0.8705883, a: 1}
+    key1: {r: 0, g: 0, b: 0, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
@@ -60,8 +89,37 @@ MonoBehaviour:
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
     ctime0: 0
+    ctime1: 65111
+    ctime2: 65111
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  HighlightImmGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 0.6627451, b: 0, a: 1}
+    key1: {r: 0.028301895, g: 0.0012459927, b: 0.0012459927, a: 1}
+    key2: {r: 0.028301895, g: 0.0012459927, b: 0.0012459927, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
     ctime1: 65535
-    ctime2: 0
+    ctime2: 65535
     ctime3: 0
     ctime4: 0
     ctime5: 0
@@ -138,7 +196,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   YearSwitchDuration: 0.5
   FlowModeSwitchDuration: 1
-  HighlightDuration: 0.2
+  HighlightDuration: 1
   RotateToCountryDuration: 0.4
   FocusCountryHoldMin: 0.8
-  PulseCountryPeriod: 0.8
+  PulseCountryPeriod: 1

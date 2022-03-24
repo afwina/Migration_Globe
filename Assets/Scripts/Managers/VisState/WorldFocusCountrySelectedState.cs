@@ -10,7 +10,7 @@ public class WorldFocusCountrySelectedState : AbstarctWorldFocusState
 
         vis.BackButton.Show();
         vis.HighlightCountry(vis.CurrentCountry);
-        vis.InfoPanel.DisplayCountryTotal(vis.CurrentCountry, vis.CurrentYear);
+        vis.InfoPanel.DisplayCountryTotal(vis.CurrentCountry, vis.CurrentYear, vis.CurrentMode);
     }
 
     public override VisState HandleGlobeClick(VisManager vis, string country)
@@ -19,7 +19,7 @@ public class WorldFocusCountrySelectedState : AbstarctWorldFocusState
         {
             vis.StopCountryAnimation(vis.CurrentCountry);
             vis.HighlightCountry(country);
-            vis.InfoPanel.DisplayCountryTotal(country, vis.CurrentYear);
+            vis.InfoPanel.DisplayCountryTotal(country, vis.CurrentYear, vis.CurrentMode);
             vis.CurrentCountry = country;
         }
 
@@ -28,13 +28,15 @@ public class WorldFocusCountrySelectedState : AbstarctWorldFocusState
 
     public override void HandleYearChange(VisManager vis, string year)
     {
+        vis.StopCountryAnimation(vis.CurrentCountry);
         base.HandleYearChange(vis, year);
         vis.HighlightCountry(vis.CurrentCountry);
-        vis.InfoPanel.DisplayCountryTotal(vis.CurrentCountry, year);
+        vis.InfoPanel.DisplayCountryTotal(vis.CurrentCountry, year, vis.CurrentMode);
     }
 
     public override void HandleFlowChange(VisManager vis, FlowMode mode)
     {
+        vis.StopCountryAnimation(vis.CurrentCountry);
         base.HandleFlowChange(vis, mode);
         vis.HighlightCountry(vis.CurrentCountry);
     }
@@ -48,7 +50,12 @@ public class WorldFocusCountrySelectedState : AbstarctWorldFocusState
             return VisStates.CountryFocusState;
         }
 
+
         vis.StopCountryAnimation(country);
+        if (country == vis.CurrentCountry)
+        {
+            vis.HighlightCountry(vis.CurrentCountry);
+        }
         HeldCountry = null;
         return this;
     }

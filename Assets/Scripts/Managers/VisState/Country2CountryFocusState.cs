@@ -33,12 +33,16 @@ public class Country2CountryFocusState : AbstractCountryFocusState
 
     public override void HandleYearChange(VisManager vis, string year)
     {
+        vis.StopCountryAnimation(vis.SecondaryCountry);
         base.HandleYearChange(vis, year);
         vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, vis.SecondaryCountry, year, vis.CurrentMode);
+        vis.HighlightCountry(vis.SecondaryCountry);
+
     }
 
     public override void HandleFlowChange(VisManager vis, FlowMode mode)
     {
+        vis.StopCountryAnimation(vis.SecondaryCountry);
         base.HandleFlowChange(vis, mode);
         vis.InfoPanel.DisplayCountry2CountryFocus(vis.CurrentCountry, vis.SecondaryCountry, vis.CurrentYear, mode);
         vis.HighlightCountry(vis.SecondaryCountry);
@@ -49,6 +53,14 @@ public class Country2CountryFocusState : AbstractCountryFocusState
         if (string.IsNullOrEmpty(country) || !staticHold || duration < vis.Config.FocusCountryHoldMin || HeldCountry != country)
         {
             vis.StopCountryAnimation(HeldCountry);
+            if (HeldCountry == vis.SecondaryCountry)
+            {
+                vis.HighlightCountry(vis.SecondaryCountry);
+            }
+            else if (HeldCountry == vis.CurrentCountry)
+            {
+                vis.PulseCountry(vis.CurrentCountry);
+            }
             HeldCountry = null;
             return this;
         }

@@ -578,7 +578,7 @@ namespace WPM {
 		/// <summary>
 		/// Draws the country outline.
 		/// </summary>
-		void DrawCountryRegionOutline (Region region, GameObject surf)
+		GameObject DrawCountryRegionOutline (Region region, GameObject surf)
 		{
 			int[] indices = new int[region.points.Length + 1];
 			Vector3[] outlinePoints = new Vector3[region.points.Length + 1];
@@ -597,7 +597,7 @@ namespace WPM {
 
 			Mesh mesh = new Mesh ();
 			mesh.vertices = outlinePoints; //region.points;
-
+		
 			mesh.SetIndices (indices, MeshTopology.LineStrip, 0);
 			mesh.RecalculateBounds ();
 			mesh.hideFlags = HideFlags.DontSave | HideFlags.HideInHierarchy;
@@ -609,6 +609,7 @@ namespace WPM {
 			mr.receiveShadows = false;
 			mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 			mr.sharedMaterial = outlineMat;
+			return boldFrontiers;
 		}
 
 		#endregion

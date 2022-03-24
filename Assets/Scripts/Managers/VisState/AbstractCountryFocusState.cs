@@ -33,6 +33,7 @@ public abstract class AbstractCountryFocusState : VisState
         {
             if (HeldCountry != country || !staticHold)
             {
+                if (HeldCountry != vis.CurrentCountry)
                 vis.StopCountryAnimation(HeldCountry);
                 HeldCountry = null;
             }

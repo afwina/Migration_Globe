@@ -10,6 +10,7 @@ public class CountryFocusState : AbstractCountryFocusState
 
         vis.BackButton.Show();
         vis.InfoPanel.DisplayCountryFocus(vis.CurrentCountry, vis.CurrentYear, vis.CurrentMode);
+        vis.ScaleToggle.Disable();
 
         vis.VisualizeCountryMigration(vis.CurrentMode, vis.CurrentYear, vis.CurrentCountry);
         vis.FocusCountry(vis.CurrentCountry);

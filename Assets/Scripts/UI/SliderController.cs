@@ -27,6 +27,9 @@ public abstract class SliderController<T> : MonoBehaviour
 
         SetupSlider(custom);
         SetupDone = true;
+
+        Slider.value = CurrentIndex;
+        UpdateSlider(CurrentIndex);
     }
 
     public void UI_OnSliderChanged(float index)

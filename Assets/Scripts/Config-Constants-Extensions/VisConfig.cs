@@ -25,4 +25,9 @@ public class VisConfig : ScriptableObject
     public float RotateToCountryDuration;
     public float FocusCountryHoldMin;
     public float PulseCountryPeriod;
+
+    [Range(0f,1f)]
+    public float ImmigrationPercentMax;
+    [Range(0f, 1f)]
+    public float EmigrationPercentMax;
 }

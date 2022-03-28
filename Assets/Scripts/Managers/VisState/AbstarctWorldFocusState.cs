@@ -38,18 +38,18 @@ public abstract class AbstarctWorldFocusState : VisState
         return this;
     }
 
-    public override VisState HandleGlobeHover(VisManager vis, string country)
-    {
-        return this;
-    }
-
     public override void HandleYearChange(VisManager vis, string year)
     {
-        vis.VisualizeTotal(vis.CurrentMode, year);
+        vis.VisualizeTotal(vis.CurrentMode, year, vis.CurrentScaleMode);
     }
 
     public override void HandleFlowChange(VisManager vis, FlowMode mode)
     {
-        vis.VisualizeTotal(mode, vis.CurrentYear);
+        vis.VisualizeTotal(mode, vis.CurrentYear, vis.CurrentScaleMode);
+    }
+
+    public override void HandleScaleModeChanged(VisManager vis, ScaleMode mode)
+    {
+        vis.VisualizeTotal(vis.CurrentMode, vis.CurrentYear, mode);
     }
 }

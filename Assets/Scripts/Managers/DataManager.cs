@@ -13,13 +13,18 @@ public static class DataManager
     private static List<string> Years;
     public static List<string> Origins { private set; get; }
     public static List<string> Destinations { private set; get; }
-    private static Dictionary<string, int[]> TotalPopulation;
+    private static Dictionary<string, int[]> TotalPopulation; // [country][year], population in thousands
     private static Dictionary<string, int> TotalMigrants;
-    private static Dictionary<string, uint[,]> MigrationData; // year[dest,origin]
+    private static Dictionary<string, uint[,]> MigrationData; // [year][dest,origin]
     private static Dictionary<string, uint[]> TotalEmigrants; // [year][origin], people from origin to WORLD
     private static Dictionary<string, uint[]> TotalImmigrants; // [year][dest], people going into dest
     private static uint MaxEmigrationTotal = 0;
     private static uint MaxImmigrationTotal = 0;
+
+    public static int GetTotalPopulation(string country, string year)
+    {
+        return TotalPopulation[country][Years.IndexOf(year)] * 1000;
+    }
 
     public static int GetTotalMigrants(string year)
     {
@@ -53,6 +58,7 @@ public static class DataManager
 
         return new uint[0];
     }
+   
     public static int GetImmigrantsToAFromB(string A, string B, string year)
     {
         int indexA = Destinations.IndexOf(A);
@@ -68,6 +74,17 @@ public static class DataManager
     public static uint[] GetTotalImmigrants(string year)
     {
         return TotalImmigrants[year];
+    }
+
+    public static float[] GetTotalImmigrantsPercent(string year)
+    {
+        uint[] value = GetTotalImmigrants(year);
+        float[] percent = new float[value.Length];
+        for(int i = 0; i < Destinations.Count; i++)
+        {
+            percent[i] = value[i] / (float) GetTotalPopulation(Destinations[i],year);
+        }
+        return percent;
     }
 
     public static int GetTotalImmigrantsTo(string country, string year)
@@ -115,7 +132,19 @@ public static class DataManager
     {
         return TotalEmigrants[year];
     }
-    
+
+    public static float[] GetTotalEmigrantsPercent(string year)
+    {
+        uint[] value = GetTotalEmigrants(year);
+        float[] percent = new float[value.Length];
+        int yearIndex = Years.IndexOf(year);
+        for (int i = 0; i < Origins.Count; i++)
+        {
+            percent[i] = value[i] / (float) GetTotalPopulation(Origins[i],year);
+        }
+        return percent;
+    }
+
     public static int GetTotalEmigrantsFrom(string country, string year)
     {
         int index = Origins.IndexOf(country);
@@ -149,6 +178,30 @@ public static class DataManager
             top.Add(new Tuple<string, int>(Origins[i], (int)all[i]));
         }
         return top.OrderByDescending(x => x.Item2).Take(amount).ToList();
+    }
+
+    public static int GetRoundedImmMax(string country)
+    {
+        List<int> maxs = new List<int>();
+        foreach (string y in Years)
+        {
+            var data = GetImmigrationTo(country, y);
+            maxs.Add((int)data.Max());
+        }
+
+        return NumberFormatter.Round(maxs.Max());
+    }
+
+    public static int GetRoundedEmMax(string country)
+    {
+        List<int> maxs = new List<int>();
+        foreach (string y in Years)
+        {
+            var data = GetEmigrantsFrom(country, y);
+            maxs.Add((int)data.Max());
+        }
+
+        return NumberFormatter.Round(maxs.Max());
     }
 
     public static List<string> GetYears()

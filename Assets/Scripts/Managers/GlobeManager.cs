@@ -130,6 +130,25 @@ public class GlobeManager : InputHandler
         }
     }
 
+    public void UpdateGlobe(float[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
+    {
+        WPMGlobe.StopFading();
+        for (int i = 0; i < data.Length; i++)
+        {
+            float time = data[i] / max;
+            Color color;
+            if (time == 0)
+            {
+                color = ZeroColor;
+            }
+            else
+            {
+                color = colorGradient.Evaluate(time);
+            }
+            WPMGlobe.UpdateCountry(countries[i], color, duration);
+        }
+    }
+
     private IEnumerator ResetRotation(float timeToReset, Action onComplete)
     {
         var start = transform.rotation;

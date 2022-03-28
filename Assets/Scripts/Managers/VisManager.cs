@@ -25,15 +25,22 @@ public class VisManager : MonoBehaviour
     [SerializeField]
     private BackButton m_BackButton;
     public BackButton BackButton => m_BackButton;
+    [SerializeField]
+    private Toggle m_ScaleToggle;
+    public Toggle ScaleToggle => m_ScaleToggle;
 
     [HideInInspector]
     public FlowMode CurrentMode;
     [HideInInspector]
     public string CurrentYear;
     [HideInInspector]
+    public ScaleMode CurrentScaleMode = ScaleMode.RawValue;
+    [HideInInspector]
     public string CurrentCountry = null;
     [HideInInspector]
     public string SecondaryCountry = null;
+
+    private string HoveredCountry;
 
     private VisState VisState;
 
@@ -88,18 +95,34 @@ public class VisManager : MonoBehaviour
         }
     }
 
-    public void VisualizeTotal(FlowMode mode, string year)
+    public void VisualizeTotal(FlowMode mode, string year, ScaleMode scaleMode)
     {
-        uint[] startingData = mode == FlowMode.Emigration ? DataManager.GetTotalEmigrants(year) : DataManager.GetTotalImmigrants(year);
+        float[] startingData;
+        if (scaleMode == ScaleMode.RawValue)
+        {
+            startingData = mode == FlowMode.Emigration ? DataManager.GetTotalEmigrants(year).Select(x => (float)x).ToArray() : 
+                                                         DataManager.GetTotalImmigrants(year).Select(x => (float)x).ToArray();
+        }
+        else
+        {
+            startingData = mode == FlowMode.Emigration ? DataManager.GetTotalEmigrantsPercent(year) : DataManager.GetTotalImmigrantsPercent(year);
+            Debug.Log(startingData.Average());
+        }
         List<string> countries = mode == FlowMode.Emigration ? DataManager.Origins : DataManager.Destinations;
-        Gradient colorGradient = mode == FlowMode.Immigration ? Config.ImmigrationGradient : Config.EmigrationGradient;
+        Gradient colorGradient = mode == FlowMode.Emigration ? Config.EmigrationGradient : Config.ImmigrationGradient;
         float duration = mode != CurrentMode ? Config.FlowModeSwitchDuration : Config.YearSwitchDuration;
-        float max = Mathf.Round(DataManager.GetMaxTotal(mode) / 100000f) *100000;
+        float max = scaleMode == ScaleMode.RawValue ? NumberFormatter.Round(DataManager.GetMaxTotal(mode)) : GetPercentScale(mode);
 
-        UpdateVis(startingData, max, countries, colorGradient, duration);
+        UpdateVis(startingData, max, countries, colorGradient, duration, scaleMode);
 
         CurrentMode = mode;
         CurrentYear = year;
+        CurrentScaleMode = scaleMode;
+    }
+
+    private float GetPercentScale(FlowMode mode)
+    {
+        return mode == FlowMode.Immigration ? Config.ImmigrationPercentMax : Config.EmigrationPercentMax;
     }
 
     public void VisualizeCountryMigration(FlowMode mode, string year, string country)
@@ -111,9 +134,8 @@ public class VisManager : MonoBehaviour
         {
             Gradient colorGradient = mode == FlowMode.Immigration ? Config.ImmigrationGradient : Config.EmigrationGradient;
             float duration = mode != CurrentMode ? Config.FlowModeSwitchDuration : Config.YearSwitchDuration;
-            float max = Mathf.Round(data.Max() / 100f) * 100;
+            float max = mode == FlowMode.Immigration ? DataManager.GetRoundedImmMax(country) : DataManager.GetRoundedEmMax(country);
             UpdateVis(data, max, countries, colorGradient, duration);
-
         }
         else
         {
@@ -139,15 +161,30 @@ public class VisManager : MonoBehaviour
         VisState.HandleFlowChange(this, mode);
     }
 
-    private void UpdateVis(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1)
+    private void UpdateVis(uint[] data, float max, List<string> countries, Gradient colorGradient, float duration = 1, ScaleMode scaleMode = ScaleMode.RawValue)
     {
-        ScaleLegend.SetScale(0, max, colorGradient);
+        ScaleLegend.SetScale(0, max, colorGradient, scaleMode);
+        Globe.UpdateGlobe(data, max, countries, colorGradient, duration);
+    }
+
+    private void UpdateVis(float[] data, float max, List<string> countries, Gradient colorGradient,float duration = 1, ScaleMode scaleMode = ScaleMode.RawValue)
+    {
+        ScaleLegend.SetScale(0, max, colorGradient, scaleMode);
         Globe.UpdateGlobe(data, max, countries, colorGradient, duration);
     }
 
     private void HandleGlobeHover(string country)
     {
-        VisState.HandleGlobeHover(this, country);
+        if (!string.IsNullOrEmpty(HoveredCountry))
+        {
+            Globe.WPMGlobe.Undarken(HoveredCountry);
+        }
+
+        if (!string.IsNullOrEmpty(country))
+        {
+            Globe.WPMGlobe.Darken(country);
+        }
+        HoveredCountry = country;
     }
 
     private void HandleGlobeClick(string country)
@@ -168,6 +205,11 @@ public class VisManager : MonoBehaviour
     private void HandleBack()
     {
         SetState(VisState.HandleBack(this));
+    }
+
+    public void HandleScaleModeChanged(int mode)
+    {
+        VisState.HandleScaleModeChanged(this, (ScaleMode)mode);
     }
 
     public void HighlightCountry(string country)

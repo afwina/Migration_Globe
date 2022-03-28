@@ -23,8 +23,6 @@ public class YearSlider : SliderController<string>
             tick.transform.position = new Vector3(Handle.transform.position.x, tick.transform.position.y, Handle.transform.position.z);
             Ticks[i] = tick;
         }
-
-        Slider.value = CurrentIndex;
     }
 
     protected override void UpdateSlider(int index)

@@ -18,6 +18,8 @@ public class InfoPanel : MonoBehaviour
     [SerializeField]
     private InfoField TotalMigrants;
     [SerializeField]
+    private InfoField TotalPopulation;
+    [SerializeField]
     private InfoField EmTotal;
     [SerializeField]
     private InfoField ImmTotal;
@@ -30,8 +32,8 @@ public class InfoPanel : MonoBehaviour
     [SerializeField]
     private InfoField ImmTop;
 
-    private const string ImmFocusTitleFormat = "Immigration to {0}";
-    private const string EmFocusTitleFormat = "Emigration from {0}";
+    private const string ImmFocusTitleFormat = "Immigrants in {0}";
+    private const string EmFocusTitleFormat = "Emigrants from {0}";
     private const string ImmTotalTitleFormat = "IMMIGRATION WORLDWIDE";
     private const string EmTotalTitleFormat = "EMIGRATION WORLDWIDE";
     public void DisplayCountryTotal(string country, string year, FlowMode mode)
@@ -64,6 +66,7 @@ public class InfoPanel : MonoBehaviour
         else
         {
             field.Display(NumberFormatter.Format(total));
+            TotalPopulation.Display(NumberFormatter.Format(DataManager.GetTotalPopulation(country, year)));
         }
     }
 
@@ -169,6 +172,7 @@ public class InfoPanel : MonoBehaviour
     public void HideFields()
     {
         TotalMigrants.Hide();
+        TotalPopulation.Hide();
         ImmTotal.Hide();
         EmTotal.Hide();
         EmFocus.Hide();

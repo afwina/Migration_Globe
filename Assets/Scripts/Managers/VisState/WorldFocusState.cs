@@ -8,8 +8,9 @@ public class WorldFocusState : AbstarctWorldFocusState
         base.Enter(vis);
 
         vis.BackButton.Hide();
-        vis.VisualizeTotal(vis.CurrentMode, vis.CurrentYear);
+        vis.VisualizeTotal(vis.CurrentMode, vis.CurrentYear, vis.CurrentScaleMode);
         vis.InfoPanel.DisplayTotalTitle(vis.CurrentMode, vis.CurrentYear);
+        vis.ScaleToggle.Enable();
     }
 
     public override VisState HandleGlobeClick(VisManager vis, string country)

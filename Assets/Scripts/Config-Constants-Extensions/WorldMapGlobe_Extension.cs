@@ -266,5 +266,26 @@ namespace WPM
                 yield return null;
             }
         }
+    
+        public void Darken(string country)
+        {
+            int index = GetCountryIndex(country);
+            if (index != -1)
+            {
+                var color = countries[index].valueColor;
+                ToggleCountrySurface(index, true, new Color(color.r, color.g, color.b, 0.7f));
+                countries[index].darkened = true;
+            }
+        }
+
+        public void Undarken(string country)
+        {
+            int index = GetCountryIndex(country);
+            if (index != -1)
+            {
+                ToggleCountrySurface(index, true, countries[index].valueColor);
+                countries[index].darkened = false;
+            }
+        }
     }
 }

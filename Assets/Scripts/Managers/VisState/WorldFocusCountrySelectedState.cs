@@ -67,4 +67,11 @@ public class WorldFocusCountrySelectedState : AbstarctWorldFocusState
         vis.CurrentCountry = null;
         return VisStates.WorldFocusState;
     }
+
+    public override void HandleScaleModeChanged(VisManager vis, ScaleMode mode)
+    {
+        vis.StopCountryAnimation(vis.CurrentCountry);
+        base.HandleScaleModeChanged(vis, mode);
+        vis.HighlightCountry(vis.CurrentCountry);
+    }
 }

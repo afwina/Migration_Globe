@@ -18,10 +18,19 @@ public class ScaleLegend : MonoBehaviour
         NoDataSwatch.color = noDataColor;
     }
 
-    public void SetScale(float min, float max, Gradient gradient)
+    public void SetScale(float min, float max, Gradient gradient, ScaleMode mode)
     {
-        MinText.text = NumberFormatter.Format(min);
-        MaxText.text = NumberFormatter.Format(max);
+        if (mode == ScaleMode.RawValue)
+        {
+            MinText.text = NumberFormatter.Format(min);
+            MaxText.text = NumberFormatter.Format(max);
+        }
+        else
+        {
+            MinText.text = NumberFormatter.RoundPercent(min);
+            MaxText.text = NumberFormatter.RoundPercent(max);
+        }
+
         Gradient.SetGradient(gradient);
     }
 }

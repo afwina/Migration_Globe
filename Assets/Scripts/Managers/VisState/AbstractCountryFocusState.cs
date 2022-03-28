@@ -6,11 +6,6 @@ public abstract class AbstractCountryFocusState : VisState
 {
     protected string HeldCountry = null;
 
-    public override VisState HandleGlobeHover(VisManager vis, string country)
-    {
-        return this;
-    }
-
     public override void HandleYearChange(VisManager vis, string year)
     {
         vis.VisualizeCountryMigration(vis.CurrentMode, year, vis.CurrentCountry);
@@ -39,5 +34,10 @@ public abstract class AbstractCountryFocusState : VisState
             }
         }
         return this;
+    }
+
+    public override void HandleScaleModeChanged(VisManager vis, ScaleMode mode)
+    {
+        return;
     }
 }

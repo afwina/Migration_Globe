@@ -8,6 +8,7 @@ namespace WPM {
 
 		public Color valueColor;
 		public bool highlighted;
+		public bool darkened;
 		/// <summary>
 		/// Country name.
 		/// </summary>
